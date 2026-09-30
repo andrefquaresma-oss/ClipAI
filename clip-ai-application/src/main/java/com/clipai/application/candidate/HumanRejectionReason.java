@@ -1,0 +1,19 @@
+package com.clipai.application.candidate;
+
+public enum HumanRejectionReason {
+    NOT_A_FOOTBALL_EVENT,
+    PRE_MATCH_NOISE,
+    HALF_TIME_NOISE,
+    POST_MATCH_NOISE,
+    CROWD_REACTION,
+    COMMENTATOR_EXCITEMENT,
+    REPLAY,
+    RETROSPECTIVE_COMMENTARY,
+    SHOT_NO_GOAL,
+    SHOT_NOT_GOAL,
+    NORMAL_PLAY,
+    WRONG_EVENT_TYPE,
+    DUPLICATE,
+    INSUFFICIENT_EVIDENCE,
+    OTHER
+}

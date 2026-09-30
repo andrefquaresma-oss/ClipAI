@@ -1,0 +1,244 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: clip-ai
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/clipai}
+    username: ${DATABASE_USERNAME:clipai}
+    password: ${DATABASE_PASSWORD:clipai}
+  servlet:
+    multipart:
+      max-file-size: ${UPLOAD_MAX_FILE_SIZE:2GB}
+      max-request-size: ${UPLOAD_MAX_REQUEST_SIZE:2GB}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+media:
+  storage:
+    root: ${MEDIA_STORAGE_ROOT:./data/media}
+
+ffmpeg:
+  path: ${FFMPEG_PATH:ffmpeg}
+  timeout: ${FFMPEG_TIMEOUT:PT30M}
+  clip-timeout: ${FFMPEG_CLIP_TIMEOUT:PT30M}
+
+ai:
+  transcription:
+    url: ${AI_TRANSCRIPTION_URL:${TRANSCRIPTION_BASE_URL:http://localhost:8000}}
+    timeout: ${TRANSCRIPTION_TIMEOUT:PT30M}
+  scoreboard-ocr:
+    url: ${AI_SCOREBOARD_OCR_URL:${AI_TRANSCRIPTION_URL:http://localhost:8000}}
+    timeout: ${SCOREBOARD_OCR_TIMEOUT:PT2H}
+    enabled: ${SCOREBOARD_OCR_ENABLED:true}
+    model-version: ${SCOREBOARD_OCR_MODEL_VERSION:PaddleOCR-3.7.0-PP-OCRv6}
+
+clip-ai:
+  upload:
+    max-file-size: ${UPLOAD_MAX_FILE_SIZE:2GB}
+    max-request-size: ${UPLOAD_MAX_REQUEST_SIZE:2GB}
+  goal-review:
+    frame-count: ${GOAL_REVIEW_FRAME_COUNT:5}
+    frame-spacing-ms: ${GOAL_REVIEW_FRAME_SPACING_MS:5000}
+    replay-look-ahead-ms: ${GOAL_REVIEW_REPLAY_LOOK_AHEAD_MS:300000}
+    replay-pre-padding-ms: ${GOAL_REVIEW_REPLAY_PRE_PADDING_MS:8000}
+    replay-post-padding-ms: ${GOAL_REVIEW_REPLAY_POST_PADDING_MS:25000}
+    maximum-replays: ${GOAL_REVIEW_MAXIMUM_REPLAYS:3}
+  rejected-review:
+    clip-window-ms: ${REJECTED_REVIEW_CLIP_WINDOW_MS:30000}
+  candidate-detection:
+    detector-version: ${CANDIDATE_DETECTION_VERSION:clip-ai-candidate-detector-v0.3c.7}
+    audio-window-ms: ${CANDIDATE_AUDIO_WINDOW_MS:1000}
+    audio-baseline-window-ms: ${CANDIDATE_AUDIO_BASELINE_WINDOW_MS:30000}
+    audio-spike-threshold-db: ${CANDIDATE_AUDIO_SPIKE_THRESHOLD_DB:9}
+    audio-minimum-db: ${CANDIDATE_AUDIO_MINIMUM_DB:-45}
+    audio-sustained-threshold-ms: ${CANDIDATE_AUDIO_SUSTAINED_THRESHOLD_MS:1500}
+    pre-event-padding-ms: ${CANDIDATE_PRE_EVENT_PADDING_MS:5000}
+    post-event-padding-ms: ${CANDIDATE_POST_EVENT_PADDING_MS:8000}
+    merge-distance-ms: ${CANDIDATE_MERGE_DISTANCE_MS:5000}
+    minimum-candidate-score: ${CANDIDATE_MINIMUM_SCORE:0.52}
+    single-signal-confidence-threshold: ${CANDIDATE_SINGLE_SIGNAL_THRESHOLD:0.80}
+    maximum-candidates: ${CANDIDATE_MAXIMUM_RESULTS:100}
+    repeated-phrase-window-ms: ${CANDIDATE_REPEATED_PHRASE_WINDOW_MS:20000}
+    repeated-phrase-minimum-segments: ${CANDIDATE_REPEATED_PHRASE_MINIMUM_SEGMENTS:2}
+    transcript-emphasis-minimum-letters: ${CANDIDATE_TRANSCRIPT_EMPHASIS_MINIMUM_LETTERS:8}
+    transcript-emphasis-uppercase-ratio: ${CANDIDATE_TRANSCRIPT_EMPHASIS_UPPERCASE_RATIO:0.65}
+    transcript-weight: ${CANDIDATE_TRANSCRIPT_WEIGHT:0.70}
+    audio-weight: ${CANDIDATE_AUDIO_WEIGHT:0.30}
+    signal-agreement-bonus: ${CANDIDATE_SIGNAL_AGREEMENT_BONUS:0.10}
+    speech-rate-window-ms: ${CANDIDATE_SPEECH_RATE_WINDOW_MS:10000}
+    speech-rate-spike-multiplier: ${CANDIDATE_SPEECH_RATE_SPIKE_MULTIPLIER:1.8}
+    minimum-words-per-speech-window: ${CANDIDATE_MINIMUM_WORDS_PER_SPEECH_WINDOW:8}
+    pitch-rise-ratio: ${CANDIDATE_PITCH_RISE_RATIO:1.25}
+    pitch-variance-ratio: ${CANDIDATE_PITCH_VARIANCE_RATIO:0.18}
+    minimum-voiced-frame-ratio: ${CANDIDATE_MINIMUM_VOICED_FRAME_RATIO:0.34}
+    minimum-live-event-probability: ${CANDIDATE_MINIMUM_LIVE_PROBABILITY:0.55}
+    replay-probability-threshold: ${CANDIDATE_REPLAY_PROBABILITY_THRESHOLD:0.68}
+    replay-temporal-window-ms: ${CANDIDATE_REPLAY_TEMPORAL_WINDOW_MS:120000}
+    context-attach-window-ms: ${CANDIDATE_CONTEXT_ATTACH_WINDOW_MS:8000}
+    boundary-search-back-ms: ${CANDIDATE_BOUNDARY_SEARCH_BACK_MS:90000}
+    attack-buildup-maximum-lead-ms: ${CANDIDATE_ATTACK_BUILDUP_MAXIMUM_LEAD_MS:45000}
+    goal-fallback-pre-roll-ms: ${CANDIDATE_GOAL_FALLBACK_PRE_ROLL_MS:30000}
+    crowd-zero-crossing-threshold: ${CANDIDATE_CROWD_ZERO_CROSSING_THRESHOLD:0.12}
+    maximum-candidate-duration-ms: ${CANDIDATE_MAXIMUM_DURATION_MS:60000}
+    minimum-goal-reaction-confidence: ${CANDIDATE_MINIMUM_GOAL_REACTION_CONFIDENCE:0.45}
+    replay-penalty-weight: ${CANDIDATE_REPLAY_PENALTY_WEIGHT:0.40}
+    goal-negative-context-penalty-weight: ${CANDIDATE_GOAL_NEGATIVE_CONTEXT_PENALTY_WEIGHT:0.45}
+    clustering-goal-trigger-window-ms: ${CANDIDATE_CLUSTERING_GOAL_WINDOW_MS:15000}
+    clustering-card-trigger-window-ms: ${CANDIDATE_CLUSTERING_CARD_WINDOW_MS:20000}
+    clustering-shot-trigger-window-ms: ${CANDIDATE_CLUSTERING_SHOT_WINDOW_MS:3000}
+    clustering-other-trigger-window-ms: ${CANDIDATE_CLUSTERING_OTHER_WINDOW_MS:10000}
+    clustering-minimum-context-similarity: ${CANDIDATE_CLUSTERING_MINIMUM_CONTEXT_SIMILARITY:0.48}
+    clustering-maximum-event-duration-ms: ${CANDIDATE_CLUSTERING_MAXIMUM_EVENT_DURATION_MS:60000}
+    event-confidence:
+      GOAL: 0.88
+      BIG_CHANCE: 0.78
+      SHOT: 0.82
+      SAVE: 0.76
+      PENALTY: 0.84
+      MISSED_PENALTY: 0.86
+      RED_CARD: 0.86
+      YELLOW_CARD: 0.83
+      VAR: 0.76
+      FOUL: 0.65
+      COUNTER_ATTACK: 0.70
+      ATTACK: 0.62
+      NEAR_MISS: 0.77
+      CELEBRATION: 0.72
+      CROWD_REACTION: 0.75
+      COMMENTATOR_REACTION: 0.68
+      CONTROVERSIAL_DECISION: 0.78
+      DRAMATIC_MOMENT: 0.74
+      UNKNOWN: 0.60
+    lexicon:
+      pt:
+        GOAL: [gol, golaço, marcou, marcou o gol, fez o gol, é rede]
+        BIG_CHANCE: [chance clara, grande chance, chance de gol, perdeu a chance]
+        SHOT: [finalização, chute, bateu pro gol, arremate]
+        SAVE: [defesa, defendeu, grande defesa, espalmou]
+        PENALTY: [pênalti para, pênalti assinalado, cobrança de pênalti, bate o pênalti,
+          cobra o pênalti, converte o pênalti, defende o pênalti]
+        MISSED_PENALTY: [perdeu o pênalti, desperdiçou o pênalti]
+        RED_CARD: [cartão vermelho, expulso, expulsão]
+        YELLOW_CARD: [cartão amarelo]
+        VAR: [var, revisão do var, chamou no var]
+        FOUL: [falta, derrubou]
+        COUNTER_ATTACK: [contra-ataque]
+        ATTACK: [ataque, vai pra cima]
+        NEAR_MISS: [quase gol, na trave, passou perto]
+        CELEBRATION: [comemora, comemoração]
+        CROWD_REACTION: [a torcida explode, torcida grita]
+      es:
+        GOAL: [golazo, marca el gol, anotó, anota, transforma el primer tanto, transforma el tanto, abre el marcador, iguala el marcador, empató, igualó]
+        BIG_CHANCE: [gran ocasión, ocasión clara, oportunidad clara]
+        SHOT: [disparo, remate, tiro a puerta]
+        SAVE: [parada, gran atajada, el portero salva]
+        PENALTY: [penalti señalado, penalti pitado, penalti a favor, le pitan penalti,
+          lanza el penalti, tira el penalti, ejecuta el penalti, convierte el penalti,
+          transforma el penalti, marca de penalti, detiene el penalti, para el penalti,
+          pena máxima señalada, pena máxima a favor]
+        MISSED_PENALTY: [falló el penalti, penalti fallado]
+        RED_CARD: [tarjeta roja, expulsado]
+        YELLOW_CARD: [tarjeta amarilla]
+        VAR: [revisión del var, el var revisa]
+        FOUL: [falta, derribó]
+        COUNTER_ATTACK: [contraataque]
+        ATTACK: [ataque]
+        NEAR_MISS: [al palo, rozando el gol, por poco]
+        CELEBRATION: [celebra, celebración]
+      en:
+        GOAL: [goal, scores, scored, finds the net, goal scored, goal for, goal by, scores from,
+          it s gone in, it has gone in, he s found the net, they ve found the net,
+          into the back of the net, in the back of the net, makes it five, makes it 5, taps it in,
+          own goal, scores an own goal, turns it into his own net, deflected into his own net]
+        BIG_CHANCE: [big chance, clear chance, great opportunity]
+        SHOT: [shot, shoots, strikes it, strikes, fires, heads, heads it, taps in, finishes,
+          snatches in, converts the chance]
+        SAVE: [save, great save, goalkeeper saves]
+        PENALTY: [penalty awarded, penalty given, penalty kick, takes the penalty,
+          taking the penalty, converts the penalty, penalty saved, penalty is saved,
+          penalty missed, scores from the penalty spot]
+        MISSED_PENALTY: [misses the penalty, penalty is missed]
+        RED_CARD: [red card, sent off]
+        YELLOW_CARD: [yellow card, booked]
+        VAR: [var check, var review]
+        FOUL: [foul, brought him down]
+        COUNTER_ATTACK: [counter attack, on the counter]
+        ATTACK: [attacking, dangerous attack]
+        NEAR_MISS: [hits the post, just wide, inches away]
+        CELEBRATION: [celebrates, celebration]
+        CROWD_REACTION: [the crowd erupts, crowd roars]
+      fr:
+        GOAL: [marque le but, a marqué, vient de marquer, inscrit par, a inscrit, vient d'inscrire, but marqué par, but inscrit par, but pour, c'est au fond, au fond des filets, et c'est but, égalisation, égalise, ouverture du score, but qu'on vient de marquer, troisième but]
+        BIG_CHANCE: [grosse occasion, occasion nette]
+        SHOT: [frappe au but, tir cadré, tente sa chance, frappe, tir]
+        SAVE: [arrêt, superbe parade]
+        PENALTY: [penalty pour, penalty accordé, penalty sifflé, tire le penalty,
+          frappe le penalty, transforme le penalty, penalty arrêté, penalty manqué,
+          coup de pied de réparation]
+        MISSED_PENALTY: [penalty manqué, rate le penalty]
+        RED_CARD: [carton rouge, expulsé]
+        YELLOW_CARD: [carton jaune, averti]
+        VAR: [vérification var, intervention de la var]
+        FOUL: [faute, fauché]
+        COUNTER_ATTACK: [contre-attaque]
+        ATTACK: [attaque]
+        NEAR_MISS: [sur le poteau, tout près du but]
+        CELEBRATION: [célèbre, célébration]
+      it:
+        GOAL: [gol, rete, ha segnato, segna, in rete, gol per]
+        BIG_CHANCE: [grande occasione, occasione nitida]
+        SHOT: [tiro, conclusione]
+        SAVE: [parata, grande parata]
+        PENALTY: [rigore assegnato, rigore concesso, calcio di rigore, batte il rigore,
+          tira il rigore, trasforma il rigore, rigore parato, rigore sbagliato]
+        MISSED_PENALTY: [rigore sbagliato, ha fallito il rigore]
+        RED_CARD: [cartellino rosso, espulso]
+        YELLOW_CARD: [cartellino giallo]
+        VAR: [controllo var, revisione var]
+        FOUL: [fallo, atterrato]
+        COUNTER_ATTACK: [contropiede]
+        ATTACK: [attacco]
+        NEAR_MISS: [sul palo, a un soffio dal gol]
+        CELEBRATION: [esulta, festeggia]
+      de:
+        GOAL: [tor, treffer, trifft, macht das tor, gleicht aus, tor für]
+        BIG_CHANCE: [große chance, klare torchance]
+        SHOT: [schuss, abschluss]
+        SAVE: [parade, starke parade]
+        PENALTY: [elfmeter zugesprochen, elfmeter für, schießt den elfmeter,
+          verwandelt den elfmeter, elfmeter gehalten, elfmeter verschossen,
+          strafstoß zugesprochen]
+        MISSED_PENALTY: [elfmeter verschossen, vergibt den elfmeter]
+        RED_CARD: [rote karte, vom platz gestellt]
+        YELLOW_CARD: [gelbe karte]
+        VAR: [var überprüfung, var prüft]
+        FOUL: [foul, gefoult]
+        COUNTER_ATTACK: [konter, gegenangriff]
+        ATTACK: [angriff]
+        NEAR_MISS: [an den pfosten, knapp vorbei]
+        CELEBRATION: [jubelt, jubel]
+    own-goal-phrases:
+      en: [own goal, scores an own goal, turns it into his own net, deflected into his own net]
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui

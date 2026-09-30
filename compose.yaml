@@ -1,0 +1,88 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-clipai}
+      POSTGRES_USER: ${POSTGRES_USER:-clipai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-clipai}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - clipai-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  whisper-worker:
+    build:
+      context: ./ai-worker
+      dockerfile: Dockerfile
+    environment:
+      WHISPER_MODEL: ${WHISPER_MODEL:-base}
+      WHISPER_DEVICE: ${WHISPER_DEVICE:-cpu}
+      WHISPER_COMPUTE_TYPE: ${WHISPER_COMPUTE_TYPE:-int8}
+      WHISPER_LANGUAGE: ${WHISPER_LANGUAGE:-}
+      WHISPER_DOWNLOAD_ROOT: /models
+      PADDLE_PDX_CACHE_HOME: /models/paddlex
+      MEDIA_STORAGE_ROOT: /var/lib/clipai/media
+      SCOREBOARD_OCR_ENABLED: ${SCOREBOARD_OCR_ENABLED:-true}
+      SCOREBOARD_OCR_DEVICE: ${SCOREBOARD_OCR_DEVICE:-cpu}
+      SCOREBOARD_OCR_LANGUAGE: ${SCOREBOARD_OCR_LANGUAGE:-en}
+      OCR_MODEL_VERSION: ${SCOREBOARD_OCR_MODEL_VERSION:-PaddleOCR-3.7.0-PP-OCRv6}
+      SCOREBOARD_OCR_INTERVAL_SECONDS: ${SCOREBOARD_OCR_INTERVAL_SECONDS:-5}
+      SCOREBOARD_OCR_HIGH_FREQUENCY_INTERVAL_SECONDS: ${SCOREBOARD_OCR_HIGH_FREQUENCY_INTERVAL_SECONDS:-0.5}
+      SCOREBOARD_OCR_TRANSITION_WINDOW_SECONDS: ${SCOREBOARD_OCR_TRANSITION_WINDOW_SECONDS:-8}
+      SCOREBOARD_OCR_MINIMUM_CONFIDENCE: ${SCOREBOARD_OCR_MINIMUM_CONFIDENCE:-0.45}
+      SCOREBOARD_OCR_STABLE_READINGS: ${SCOREBOARD_OCR_STABLE_READINGS:-2}
+      SCOREBOARD_OCR_STABLE_WINDOW_SECONDS: ${SCOREBOARD_OCR_STABLE_WINDOW_SECONDS:-12}
+      SCOREBOARD_OCR_MAXIMUM_SCORE: ${SCOREBOARD_OCR_MAXIMUM_SCORE:-15}
+      SCOREBOARD_OCR_MAXIMUM_FRAME_WIDTH: ${SCOREBOARD_OCR_MAXIMUM_FRAME_WIDTH:-1280}
+    volumes:
+      - ./data/media:/var/lib/clipai/media
+      - clipai-whisper-models:/models
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  clip-ai-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-clipai}
+      DATABASE_USERNAME: ${POSTGRES_USER:-clipai}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-clipai}
+      SERVER_PORT: 8080
+      MEDIA_STORAGE_ROOT: /var/lib/clipai/media
+      FFMPEG_PATH: /usr/bin/ffmpeg
+      FFMPEG_TIMEOUT: ${FFMPEG_TIMEOUT:-PT30M}
+      FFMPEG_CLIP_TIMEOUT: ${FFMPEG_CLIP_TIMEOUT:-PT30M}
+      AI_TRANSCRIPTION_URL: http://whisper-worker:8000
+      AI_SCOREBOARD_OCR_URL: http://whisper-worker:8000
+      TRANSCRIPTION_TIMEOUT: ${TRANSCRIPTION_TIMEOUT:-PT30M}
+      SCOREBOARD_OCR_TIMEOUT: ${SCOREBOARD_OCR_TIMEOUT:-PT2H}
+      SCOREBOARD_OCR_ENABLED: ${SCOREBOARD_OCR_ENABLED:-true}
+      SCOREBOARD_OCR_MODEL_VERSION: ${SCOREBOARD_OCR_MODEL_VERSION:-PaddleOCR-3.7.0-PP-OCRv6}
+      UPLOAD_MAX_FILE_SIZE: ${UPLOAD_MAX_FILE_SIZE:-2GB}
+      UPLOAD_MAX_REQUEST_SIZE: ${UPLOAD_MAX_REQUEST_SIZE:-2GB}
+    ports:
+      - "${SERVER_PORT:-8081}:8080"
+    volumes:
+      - ./data/media:/var/lib/clipai/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+      whisper-worker:
+        condition: service_healthy
+
+volumes:
+  clipai-postgres:
+  clipai-whisper-models:

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b2d">
+  <title>Clip AI · Football Video Intelligence</title>
+  <link rel="stylesheet" href="/studio.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#/dashboard"><span class="brand-mark">C</span><span>CLIP AI <small>VIDEO INTELLIGENCE</small></span></a>
+    <nav aria-label="Main navigation">
+      <a href="#/dashboard" data-nav="dashboard">Overview</a>
+      <a href="#/matches" data-nav="matches">Matches</a>
+      <a href="#/processing" data-nav="processing">Processing</a>
+      <a href="#/review" data-nav="review">Review</a>
+      <a href="#/events" data-nav="events">Events</a>
+      <a href="#/clips" data-nav="clips">Clips</a>
+      <a href="#/ground-truth" data-nav="ground-truth">Ground Truth</a>
+      <a href="#/analytics" data-nav="analytics">Analytics</a>
+      <form id="global-search-form" class="global-search" role="search">
+        <input id="global-search-input" type="search" aria-label="Search matches, events and clips" placeholder="Search">
+        <button class="secondary" type="submit">Search</button>
+      </form>
+      <a href="/swagger-ui/index.html" target="_blank" rel="noreferrer">API docs ↗</a>
+    </nav>
+  </header>
+  <main id="app" class="shell" aria-live="polite" aria-busy="true">
+    <div class="loading">Loading review workbench…</div>
+  </main>
+  <script src="/studio.js" defer></script>
+</body>
+</html>

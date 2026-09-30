@@ -1,0 +1,32 @@
+package com.clipai.domain.candidate;
+
+public enum FootballEventType {
+    GOAL,
+    GOAL_DISALLOWED,
+    BIG_CHANCE,
+    SHOT,
+    SAVE,
+    PENALTY,
+    MISSED_PENALTY,
+    PENALTY_MISSED,
+    CORNER,
+    FREE_KICK,
+    OFFSIDE,
+    SUBSTITUTION,
+    RED_CARD,
+    YELLOW_CARD,
+    VAR,
+    VAR_REVIEW,
+    VAR_DECISION,
+    REFEREE_WHISTLE,
+    FOUL,
+    COUNTER_ATTACK,
+    ATTACK,
+    NEAR_MISS,
+    CELEBRATION,
+    CROWD_REACTION,
+    COMMENTATOR_REACTION,
+    CONTROVERSIAL_DECISION,
+    DRAMATIC_MOMENT,
+    UNKNOWN
+}
